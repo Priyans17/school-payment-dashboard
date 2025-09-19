@@ -8,7 +8,12 @@ import TransactionTable from "./TransactionTable"
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const userData = localStorage.getItem("user")
@@ -33,6 +38,14 @@ export default function Dashboard() {
 
   const navigateToSchoolTransactions = () => {
     router.push("/transactions/school")
+  }
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    )
   }
 
   return (

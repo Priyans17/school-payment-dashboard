@@ -1,12 +1,7 @@
 "use client"
 
-import Login from "../../src/pages/Login"
-import { AuthProvider } from "../../src/contexts/AuthContext"
+import SimpleLogin from "../components/SimpleLogin"
 
 export default function LoginPage() {
-  return (
-    <AuthProvider>
-      <Login />
-    </AuthProvider>
-  )
+  return <SimpleLogin />
 }

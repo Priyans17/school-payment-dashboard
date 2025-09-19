@@ -3,10 +3,10 @@
 import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
-import { useAuth } from "../../app/contexts/AuthContext"
 import { Eye, EyeOff, CreditCard } from "lucide-react"
+import { useAuth } from "../contexts/AuthContext"
 
-const Register: React.FC = () => {
+const SimpleRegister: React.FC = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -147,4 +147,4 @@ const Register: React.FC = () => {
   )
 }
 
-export default Register
+export default SimpleRegister

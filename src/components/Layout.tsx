@@ -4,16 +4,31 @@ import type React from "react"
 import type { ReactNode } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useAuth } from "../contexts/AuthContext"
-import { LayoutDashboard, Search, Plus, LogOut, User, School } from "lucide-react"
+import { useAuth } from "../../app/contexts/AuthContext"
+import { 
+  LayoutDashboard, 
+  School, 
+  Search, 
+  Plus, 
+  User,
+  CreditCard,
+  Globe
+} from "lucide-react"
+import { useEffect } from "react"
 
 interface LayoutProps {
   children: ReactNode
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const pathname = usePathname()
+
+  useEffect(() => {
+    // Force dark mode
+    document.documentElement.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+  }, [])
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -25,60 +40,67 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isActive = (path: string) => pathname === path
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg">
-        <div className="flex h-16 items-center justify-center border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-900">School Payments</h1>
-        </div>
-
-        <nav className="mt-8 px-4">
-          <ul className="space-y-2">
-            {navigation.map((item) => {
-              const Icon = item.icon
-              return (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      isActive(item.href)
-                        ? "bg-primary-100 text-primary-700"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                    }`}
-                  >
-                    <Icon className="mr-3 h-5 w-5" />
-                    {item.name}
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </nav>
-
-        {/* User section */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gray-900">
+      {/* Top Navigation */}
+      <nav className="bg-gray-800 shadow-sm border-b border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
-                  <User className="h-4 w-4 text-primary-600" />
+              <div className="flex-shrink-0 flex items-center">
+                <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Globe className="h-5 w-5 text-white" />
                 </div>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-700">{user?.name}</p>
-                <p className="text-xs text-gray-500">{user?.email}</p>
+                <span className="ml-2 text-xl font-bold text-white">Edviron</span>
               </div>
             </div>
-            <button onClick={logout} className="p-2 text-gray-400 hover:text-gray-600 transition-colors" title="Logout">
-              <LogOut className="h-4 w-4" />
-            </button>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <div className="h-8 w-8 bg-gray-600 rounded-full flex items-center justify-center">
+                  <User className="h-4 w-4 text-gray-300" />
+                </div>
+                <div className="hidden md:block">
+                  <p className="text-sm font-medium text-white">{user?.name}</p>
+                  <p className="text-xs text-gray-400">{user?.email}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 relative overflow-y-auto focus:outline-none">
+          <div className="py-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {children}
+            </div>
+          </div>
+        </main>
       </div>
 
-      {/* Main content */}
-      <div className="pl-64">
-        <main className="py-8 px-8">{children}</main>
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700">
+        <nav className="flex justify-around py-2">
+          {navigation.map((item) => {
+            const Icon = item.icon
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex flex-col items-center py-2 px-3 text-xs font-medium transition-colors ${
+                  isActive(item.href)
+                    ? "text-blue-400 bg-gray-700 rounded-lg"
+                    : "text-gray-400 hover:text-gray-300"
+                }`}
+              >
+                <Icon className="h-5 w-5 mb-1" />
+                {item.name}
+              </Link>
+            )
+          })}
+        </nav>
       </div>
     </div>
   )

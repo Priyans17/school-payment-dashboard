@@ -11,21 +11,40 @@ const app = express()
 // Middleware
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 )
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // MongoDB Connection
-mongoose
-  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/school-payments", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err))
+const connectDB = async () => {
+  try {
+    // Try local MongoDB first
+    await mongoose.connect("mongodb://localhost:27017/school-payments", {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    console.log("✅ Connected to local MongoDB")
+  } catch (localError) {
+    try {
+      // Try MongoDB Atlas if local fails
+      await mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://demo:demo@cluster0.mongodb.net/school-payments?retryWrites=true&w=majority", {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      })
+      console.log("✅ Connected to MongoDB Atlas")
+    } catch (atlasError) {
+      console.log("⚠️ MongoDB not available, using in-memory storage")
+      console.log("💡 To use MongoDB: Install MongoDB locally or set MONGODB_URI")
+    }
+  }
+}
+
+connectDB()
 
 // Import routes
 const authRoutes = require("./routes/auth")
@@ -39,6 +58,7 @@ app.use("/api/auth", authRoutes)
 app.use("/api/payment", paymentRoutes)
 app.use("/api/order", orderRoutes)
 app.use("/api/transactions", transactionRoutes)
+app.use("/api/transaction-status", transactionRoutes)
 app.use("/api/webhook", webhookRoutes)
 
 // Health check endpoint
@@ -64,7 +84,7 @@ app.use("*", (req, res) => {
   })
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3002
 app.listen(PORT, () => {
   console.log(`🚀 School Payment API running on port ${PORT}`)
 })

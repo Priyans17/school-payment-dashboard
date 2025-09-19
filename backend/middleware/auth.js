@@ -14,7 +14,19 @@ const authenticateToken = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key")
-    const user = await User.findById(decoded.userId).select("-password")
+    
+    // Handle both MongoDB and memory storage
+    let user
+    if (User.findById) {
+      // MongoDB
+      user = await User.findById(decoded.userId).select("-password")
+    } else {
+      // Memory storage
+      user = await User.findOne({ _id: decoded.userId })
+      if (user) {
+        delete user.password
+      }
+    }
 
     if (!user) {
       return res.status(401).json({
@@ -26,6 +38,7 @@ const authenticateToken = async (req, res, next) => {
     req.user = user
     next()
   } catch (error) {
+    console.error("Auth middleware error:", error)
     return res.status(403).json({
       success: false,
       message: "Invalid or expired token",

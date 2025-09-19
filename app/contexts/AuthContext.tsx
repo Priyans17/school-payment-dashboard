@@ -3,8 +3,8 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
-import { authAPI } from "../services/api"
-import toast from "react-hot-toast"
+import { authAPI } from "../../src/services/api"
+import { toast } from "@/hooks/use-toast"
 
 interface User {
   id: string
@@ -38,9 +38,11 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
+    setMounted(true)
     const token = localStorage.getItem("token")
     const userData = localStorage.getItem("user")
 
@@ -65,11 +67,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(userData))
       setUser(userData)
 
-      toast.success("Login successful!")
+      toast({
+        title: "Success",
+        description: "Login successful!",
+      })
+      // Use router.push instead of window.location.href
       router.push("/dashboard")
     } catch (error: any) {
-      const message = error.response?.data?.message || "Login failed"
-      toast.error(message)
+      console.error("Login error:", error)
+      const message = error.response?.data?.message || "Login failed. Please check your credentials."
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
       throw error
     }
   }
@@ -83,11 +94,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(userData))
       setUser(userData)
 
-      toast.success("Registration successful!")
+      toast({
+        title: "Success",
+        description: "Registration successful!",
+      })
+      // Use router.push instead of window.location.href
       router.push("/dashboard")
     } catch (error: any) {
-      const message = error.response?.data?.message || "Registration failed"
-      toast.error(message)
+      console.error("Registration error:", error)
+      const message = error.response?.data?.message || "Registration failed. Please try again."
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
       throw error
     }
   }
@@ -96,7 +116,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
     setUser(null)
-    toast.success("Logged out successfully!")
+    toast({
+      title: "Success",
+      description: "Logged out successfully!",
+    })
+    // Use router.push instead of window.location.href
     router.push("/login")
   }
 

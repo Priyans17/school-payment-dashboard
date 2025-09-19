@@ -3,32 +3,22 @@
 import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
-import { useAuth } from "../../app/contexts/AuthContext"
 import { Eye, EyeOff, CreditCard } from "lucide-react"
+import { useAuth } from "../contexts/AuthContext"
 
-const Register: React.FC = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  })
+const SimpleLogin: React.FC = () => {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { register } = useAuth()
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-  }
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      await register(formData.email, formData.password, formData.name)
+      await login(email, password)
     } catch (error) {
       // Error is handled in AuthContext
     } finally {
@@ -44,30 +34,13 @@ const Register: React.FC = () => {
           <div className="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
             <CreditCard className="h-8 w-8 text-white" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">Create your account</h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Get started with school payment management</p>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">Welcome back</h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Sign in to your school payment dashboard</p>
         </div>
 
-        {/* Register Form */}
+        {/* Login Form */}
         <div className="card p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="Enter your full name"
-              />
-            </div>
-
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email address
@@ -78,8 +51,8 @@ const Register: React.FC = () => {
                 type="email"
                 autoComplete="email"
                 required
-                value={formData.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="input-field"
                 placeholder="Enter your email"
               />
@@ -94,10 +67,10 @@ const Register: React.FC = () => {
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
+                  autoComplete="current-password"
                   required
-                  value={formData.password}
-                  onChange={handleChange}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="input-field pr-10"
                   placeholder="Enter your password"
                 />
@@ -124,19 +97,19 @@ const Register: React.FC = () => {
                 {loading ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Creating account...
+                    Signing in...
                   </div>
                 ) : (
-                  "Create Account"
+                  "Sign in"
                 )}
               </button>
             </div>
 
             <div className="text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Already have an account?{" "}
-                <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
-                  Sign in
+                Don't have an account?{" "}
+                <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                  Sign up
                 </Link>
               </p>
             </div>
@@ -147,4 +120,4 @@ const Register: React.FC = () => {
   )
 }
 
-export default Register
+export default SimpleLogin

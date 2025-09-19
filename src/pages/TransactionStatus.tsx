@@ -2,10 +2,11 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Search, CheckCircle, XCircle, Clock, Copy } from "lucide-react"
-import { transactionAPI } from "../services/api"
+import { Search, CheckCircle, XCircle, Clock, Copy, ArrowLeft } from "lucide-react"
+import { paymentAPI } from "../services/api"
 import { format } from "date-fns"
 import toast from "react-hot-toast"
+import Link from "next/link"
 
 interface TransactionDetails {
   collect_id: string
@@ -25,21 +26,22 @@ interface TransactionDetails {
 }
 
 const TransactionStatus: React.FC = () => {
-  const [customOrderId, setCustomOrderId] = useState("")
+  const [collectRequestId, setCollectRequestId] = useState("")
   const [transaction, setTransaction] = useState<TransactionDetails | null>(null)
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!customOrderId.trim()) return
+    if (!collectRequestId.trim()) return
 
     setLoading(true)
     setSearched(true)
 
     try {
-      const response = await transactionAPI.getStatus(customOrderId.trim())
-      setTransaction(response.data.transaction)
+      const response = await paymentAPI.checkStatus(collectRequestId.trim())
+      setTransaction(response.data.data)
+      toast.success("Transaction found!")
     } catch (error: any) {
       if (error.response?.status === 404) {
         setTransaction(null)
@@ -85,49 +87,68 @@ const TransactionStatus: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-20">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Transaction Status</h1>
-        <p className="text-gray-600">Check the status of any transaction using the order ID</p>
+      <div className="flex items-center space-x-4">
+        <Link href="/dashboard" className="p-2 text-gray-400 hover:text-gray-300 transition-colors">
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <div>
+          <h1 className="text-3xl font-bold text-white">Check Transaction Status</h1>
+          <p className="mt-1 text-sm text-gray-400">Check the status of any transaction using the collect request ID</p>
+        </div>
       </div>
 
       {/* Search Form */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-sm p-6">
         <form onSubmit={handleSearch} className="space-y-4">
           <div>
-            <label htmlFor="customOrderId" className="block text-sm font-medium text-gray-700 mb-2">
-              Custom Order ID
+            <label htmlFor="collectRequestId" className="block text-sm font-medium text-gray-300 mb-2">
+              Collect Request ID
             </label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
-                id="customOrderId"
+                id="collectRequestId"
                 type="text"
-                value={customOrderId}
-                onChange={(e) => setCustomOrderId(e.target.value)}
-                placeholder="Enter custom order ID (e.g., ORD_1234567890_abc123)"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                value={collectRequestId}
+                onChange={(e) => setCollectRequestId(e.target.value)}
+                placeholder="Enter collect request ID"
+                className="w-full pl-10 pr-4 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white"
                 required
               />
             </div>
           </div>
 
+          <div>
+            <label htmlFor="schoolId" className="block text-sm font-medium text-gray-300 mb-2">
+              School ID
+            </label>
+            <input
+              id="schoolId"
+              type="text"
+              value={process.env.NEXT_PUBLIC_SCHOOL_ID || "65b0e6293e9f76a9694d84b4"}
+              disabled
+              className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-gray-300 cursor-not-allowed"
+            />
+            <p className="mt-1 text-xs text-gray-400">Pre-filled from environment variable</p>
+          </div>
+
           <button
             type="submit"
-            disabled={loading || !customOrderId.trim()}
-            className="w-full flex items-center justify-center px-4 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading || !collectRequestId.trim()}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <>
-                <div className="loading-spinner mr-2"></div>
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                 Searching...
-              </>
+              </div>
             ) : (
-              <>
+              <div className="flex items-center justify-center">
                 <Search className="h-4 w-4 mr-2" />
                 Check Status
-              </>
+              </div>
             )}
           </button>
         </form>
@@ -135,7 +156,7 @@ const TransactionStatus: React.FC = () => {
 
       {/* Transaction Details */}
       {searched && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-sm">
           {transaction ? (
             <div className="p-6">
               {/* Status Header */}
@@ -143,7 +164,7 @@ const TransactionStatus: React.FC = () => {
                 <div className="flex items-center gap-4">
                   {getStatusIcon(transaction.status)}
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900">Transaction Details</h2>
+                    <h2 className="text-xl font-semibold text-white">Transaction Details</h2>
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(transaction.status)}`}
                     >
@@ -157,14 +178,14 @@ const TransactionStatus: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Order ID</label>
+                    <label className="block text-sm font-medium text-gray-400">Order ID</label>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
+                      <span className="text-sm font-mono bg-gray-700 px-2 py-1 rounded text-white">
                         {transaction.custom_order_id}
                       </span>
                       <button
                         onClick={() => copyToClipboard(transaction.custom_order_id)}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 hover:text-gray-300"
                       >
                         <Copy className="h-4 w-4" />
                       </button>
@@ -172,30 +193,30 @@ const TransactionStatus: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Order Amount</label>
-                    <p className="mt-1 text-lg font-semibold text-gray-900">₹{transaction.order_amount}</p>
+                    <label className="block text-sm font-medium text-gray-400">Order Amount</label>
+                    <p className="mt-1 text-lg font-semibold text-white">₹{transaction.order_amount}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Transaction Amount</label>
-                    <p className="mt-1 text-lg font-semibold text-gray-900">₹{transaction.transaction_amount}</p>
+                    <label className="block text-sm font-medium text-gray-400">Transaction Amount</label>
+                    <p className="mt-1 text-lg font-semibold text-white">₹{transaction.transaction_amount}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Payment Mode</label>
-                    <p className="mt-1 text-sm text-gray-900">{transaction.payment_mode || "N/A"}</p>
+                    <label className="block text-sm font-medium text-gray-400">Payment Mode</label>
+                    <p className="mt-1 text-sm text-white">{transaction.payment_mode || "N/A"}</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Gateway</label>
-                    <p className="mt-1 text-sm text-gray-900">{transaction.gateway}</p>
+                    <label className="block text-sm font-medium text-gray-400">Gateway</label>
+                    <p className="mt-1 text-sm text-white">{transaction.gateway}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Payment Time</label>
-                    <p className="mt-1 text-sm text-gray-900">
+                    <label className="block text-sm font-medium text-gray-400">Payment Time</label>
+                    <p className="mt-1 text-sm text-white">
                       {transaction.payment_time
                         ? format(new Date(transaction.payment_time), "dd MMM yyyy, hh:mm a")
                         : "N/A"}
@@ -203,27 +224,27 @@ const TransactionStatus: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Payment Message</label>
-                    <p className="mt-1 text-sm text-gray-900">{transaction.payment_message || "N/A"}</p>
+                    <label className="block text-sm font-medium text-gray-400">Payment Message</label>
+                    <p className="mt-1 text-sm text-white">{transaction.payment_message || "N/A"}</p>
                   </div>
                 </div>
               </div>
 
               {/* Student Information */}
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Student Information</h3>
+              <div className="mt-8 pt-6 border-t border-gray-700">
+                <h3 className="text-lg font-medium text-white mb-4">Student Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Name</label>
-                    <p className="mt-1 text-sm text-gray-900">{transaction.student_info.name}</p>
+                    <label className="block text-sm font-medium text-gray-400">Name</label>
+                    <p className="mt-1 text-sm text-white">{transaction.student_info.name}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Student ID</label>
-                    <p className="mt-1 text-sm text-gray-900">{transaction.student_info.id}</p>
+                    <label className="block text-sm font-medium text-gray-400">Student ID</label>
+                    <p className="mt-1 text-sm text-white">{transaction.student_info.id}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Email</label>
-                    <p className="mt-1 text-sm text-gray-900">{transaction.student_info.email}</p>
+                    <label className="block text-sm font-medium text-gray-400">Email</label>
+                    <p className="mt-1 text-sm text-white">{transaction.student_info.email}</p>
                   </div>
                 </div>
               </div>
@@ -231,9 +252,9 @@ const TransactionStatus: React.FC = () => {
           ) : (
             <div className="p-12 text-center">
               <XCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Transaction Not Found</h3>
-              <p className="text-gray-600">
-                No transaction found with the order ID "{customOrderId}". Please check the order ID and try again.
+              <h3 className="text-lg font-medium text-white mb-2">Transaction Not Found</h3>
+              <p className="text-gray-400">
+                No transaction found with the collect request ID "{collectRequestId}". Please check the collect request ID and try again.
               </p>
             </div>
           )}

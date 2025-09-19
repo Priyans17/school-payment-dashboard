@@ -23,52 +23,92 @@ router.get("/", authenticateToken, async (req, res) => {
     const sortObj = {}
     sortObj[sort] = order === "desc" ? -1 : 1
 
-    const transactions = await Order.aggregate([
-      {
-        $lookup: {
-          from: "orderstatuses",
-          localField: "_id",
-          foreignField: "collect_id",
-          as: "orderStatus",
+    let transactions
+    if (Order.aggregate) {
+      // MongoDB aggregation
+      transactions = await Order.aggregate([
+        {
+          $lookup: {
+            from: "orderstatuses",
+            localField: "_id",
+            foreignField: "collect_id",
+            as: "orderStatus",
+          },
         },
-      },
-      {
-        $unwind: {
-          path: "$orderStatus",
-          preserveNullAndEmptyArrays: true,
+        {
+          $unwind: {
+            path: "$orderStatus",
+            preserveNullAndEmptyArrays: true,
+          },
         },
-      },
-      {
-        $match: matchConditions,
-      },
-      {
-        $project: {
-          collect_id: "$_id",
-          school_id: 1,
-          gateway: "$gateway_name",
-          order_amount: 1,
-          transaction_amount: "$orderStatus.transaction_amount",
-          status: "$orderStatus.status",
-          custom_order_id: 1,
-          student_info: 1,
-          payment_mode: "$orderStatus.payment_mode",
-          payment_time: "$orderStatus.payment_time",
-          createdAt: 1,
+        {
+          $match: matchConditions,
         },
-      },
-      {
-        $sort: sortObj,
-      },
-      {
-        $skip: (Number.parseInt(page) - 1) * Number.parseInt(limit),
-      },
-      {
-        $limit: Number.parseInt(limit),
-      },
-    ])
+        {
+          $project: {
+            collect_id: "$_id",
+            school_id: 1,
+            gateway: "$gateway_name",
+            order_amount: 1,
+            transaction_amount: "$orderStatus.transaction_amount",
+            status: "$orderStatus.status",
+            custom_order_id: 1,
+            student_info: 1,
+            payment_mode: "$orderStatus.payment_mode",
+            payment_time: "$orderStatus.payment_time",
+            createdAt: 1,
+          },
+        },
+        {
+          $sort: sortObj,
+        },
+        {
+          $skip: (Number.parseInt(page) - 1) * Number.parseInt(limit),
+        },
+        {
+          $limit: Number.parseInt(limit),
+        },
+      ])
+    } else {
+      // Memory storage - simple join
+      const orders = await Order.find()
+      const orderStatuses = await OrderStatus.find()
+      
+      transactions = orders.map(order => {
+        const status = orderStatuses.find(s => s.collect_id === order._id)
+        return {
+          collect_id: order._id,
+          school_id: order.school_id,
+          gateway: order.gateway_name,
+          order_amount: order.order_amount,
+          transaction_amount: status?.transaction_amount || order.order_amount,
+          status: status?.status || "pending",
+          custom_order_id: order.custom_order_id,
+          student_info: order.student_info,
+          payment_mode: status?.payment_mode || "NA",
+          payment_time: status?.payment_time,
+          createdAt: order.createdAt,
+        }
+      }).filter(transaction => {
+        if (status && status !== "all" && transaction.status !== status) return false
+        if (school_id && transaction.school_id !== school_id) return false
+        return true
+      }).sort((a, b) => {
+        const aVal = a[sort]
+        const bVal = b[sort]
+        if (order === "desc") {
+          return bVal > aVal ? 1 : -1
+        } else {
+          return aVal > bVal ? 1 : -1
+        }
+      }).slice(
+        (Number.parseInt(page) - 1) * Number.parseInt(limit),
+        Number.parseInt(page) * Number.parseInt(limit)
+      )
+    }
 
     // Get total count
-    const totalCount = await Order.countDocuments()
+    const totalCount = Order.countDocuments ? await Order.countDocuments() : transactions.length
 
     res.json({
       success: true,
@@ -96,48 +136,76 @@ router.get("/school/:schoolId", authenticateToken, async (req, res) => {
     const { schoolId } = req.params
     const { page = 1, limit = 10 } = req.query
 
-    const transactions = await Order.aggregate([
-      {
-        $match: { school_id: schoolId },
-      },
-      {
-        $lookup: {
-          from: "orderstatuses",
-          localField: "_id",
-          foreignField: "collect_id",
-          as: "orderStatus",
+    let transactions
+    if (Order.aggregate) {
+      // MongoDB aggregation
+      transactions = await Order.aggregate([
+        {
+          $match: { school_id: schoolId },
         },
-      },
-      {
-        $unwind: {
-          path: "$orderStatus",
-          preserveNullAndEmptyArrays: true,
+        {
+          $lookup: {
+            from: "orderstatuses",
+            localField: "_id",
+            foreignField: "collect_id",
+            as: "orderStatus",
+          },
         },
-      },
-      {
-        $project: {
-          collect_id: "$_id",
-          school_id: 1,
-          gateway: "$gateway_name",
-          order_amount: 1,
-          transaction_amount: "$orderStatus.transaction_amount",
-          status: "$orderStatus.status",
-          custom_order_id: 1,
-          student_info: 1,
-          payment_mode: "$orderStatus.payment_mode",
-          payment_time: "$orderStatus.payment_time",
+        {
+          $unwind: {
+            path: "$orderStatus",
+            preserveNullAndEmptyArrays: true,
+          },
         },
-      },
-      {
-        $sort: { createdAt: -1 },
-      },
-      {
-        $skip: (Number.parseInt(page) - 1) * Number.parseInt(limit),
-      },
-      {
-        $limit: Number.parseInt(limit),
-      },
-    ])
+        {
+          $project: {
+            collect_id: "$_id",
+            school_id: 1,
+            gateway: "$gateway_name",
+            order_amount: 1,
+            transaction_amount: "$orderStatus.transaction_amount",
+            status: "$orderStatus.status",
+            custom_order_id: 1,
+            student_info: 1,
+            payment_mode: "$orderStatus.payment_mode",
+            payment_time: "$orderStatus.payment_time",
+          },
+        },
+        {
+          $sort: { createdAt: -1 },
+        },
+        {
+          $skip: (Number.parseInt(page) - 1) * Number.parseInt(limit),
+        },
+        {
+          $limit: Number.parseInt(limit),
+        },
+      ])
+    } else {
+      // Memory storage
+      const orders = await Order.find({ school_id: schoolId })
+      const orderStatuses = await OrderStatus.find()
+      
+      transactions = orders.map(order => {
+        const status = orderStatuses.find(s => s.collect_id === order._id)
+        return {
+          collect_id: order._id,
+          school_id: order.school_id,
+          gateway: order.gateway_name,
+          order_amount: order.order_amount,
+          transaction_amount: status?.transaction_amount || order.order_amount,
+          status: status?.status || "pending",
+          custom_order_id: order.custom_order_id,
+          student_info: order.student_info,
+          payment_mode: status?.payment_mode || "NA",
+          payment_time: status?.payment_time,
+        }
+      }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(
+        (Number.parseInt(page) - 1) * Number.parseInt(limit),
+        Number.parseInt(page) * Number.parseInt(limit)
+      )
+    }
 
     res.json({
       success: true,
@@ -156,6 +224,44 @@ router.get("/school/:schoolId", authenticateToken, async (req, res) => {
 
 // Check transaction status
 router.get("/status/:customOrderId", authenticateToken, async (req, res) => {
+  try {
+    const { customOrderId } = req.params
+
+    const order = await Order.findOne({ custom_order_id: customOrderId })
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Transaction not found",
+      })
+    }
+
+    const orderStatus = await OrderStatus.findOne({ collect_id: order._id })
+
+    res.json({
+      success: true,
+      data: {
+        custom_order_id: customOrderId,
+        collect_id: order._id,
+        status: orderStatus?.status || "pending",
+        order_amount: order.order_amount,
+        transaction_amount: orderStatus?.transaction_amount || order.order_amount,
+        payment_mode: orderStatus?.payment_mode || "NA",
+        payment_time: orderStatus?.payment_time,
+        student_info: order.student_info,
+      },
+    })
+  } catch (error) {
+    console.error("Check status error:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to check transaction status",
+      error: error.message,
+    })
+  }
+})
+
+// Add the missing transaction-status endpoint
+router.get("/transaction-status/:customOrderId", authenticateToken, async (req, res) => {
   try {
     const { customOrderId } = req.params
 

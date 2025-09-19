@@ -1,12 +1,7 @@
 "use client"
 
-import Register from "../../src/pages/Register"
-import { AuthProvider } from "../../src/contexts/AuthContext"
+import SimpleRegister from "../components/SimpleRegister"
 
 export default function RegisterPage() {
-  return (
-    <AuthProvider>
-      <Register />
-    </AuthProvider>
-  )
+  return <SimpleRegister />
 }

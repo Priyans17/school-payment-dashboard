@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api"
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -55,10 +55,26 @@ export const paymentAPI = {
     callback_url?: string
   }) => api.post("/payment/create-payment", data),
   checkStatus: (collectRequestId: string) => api.get(`/payment/status/${collectRequestId}`),
+  autoApprove: (orderId: string) => api.post(`/payment/auto-approve/${orderId}`),
+  adminApprove: (orderId: string, approved: boolean) => api.post(`/payment/admin-approve/${orderId}`, { approved }),
 }
 
 export const orderAPI = {
   createDummyData: () => api.post("/order/create-dummy-data"),
+  createRawData: (data: {
+    institute_name: string
+    student_name: string
+    student_id: string
+    student_email: string
+    order_amount: number
+    transaction_amount: number
+    payment_method: string
+    status: string
+    gateway: string
+    phone_number?: string
+  }) => api.post("/order/create-raw-data", data),
+  exportData: (params?: { format?: string; status?: string; start_date?: string; end_date?: string }) => 
+    api.get("/order/export", { params }),
 }
 
 export default api

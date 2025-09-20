@@ -10,7 +10,7 @@ const router = express.Router()
 // Create payment
 router.post("/create-payment", authenticateToken, async (req, res) => {
   try {
-    const { student_info, amount, callback_url } = req.body
+    const { student_info, amount, callback_url = "https://dev-vanilla.edviron.com/erp" } = req.body
     const order_amount = amount
 
     // Generate custom order ID

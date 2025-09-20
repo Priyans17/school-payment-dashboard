@@ -237,7 +237,7 @@ POST /api/payment/create-payment
     "id": "STU001",
     "email": "john@example.com"
   },
-  "callback_url": "https://example.com/callback"
+  "callback_url": "https://dev-vanilla.edviron.com/erp"
 }
 ```
 

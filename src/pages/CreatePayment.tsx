@@ -18,7 +18,7 @@ interface PaymentFormData {
 const CreatePayment: React.FC = () => {
   const [formData, setFormData] = useState<PaymentFormData>({
     amount: "",
-    callback_url: "https://google.com",
+    callback_url: "https://dev-vanilla.edviron.com/erp",
     student_name: "",
     student_id: "",
     student_email: "",
@@ -45,7 +45,7 @@ const CreatePayment: React.FC = () => {
           id: formData.student_id,
           email: formData.student_email,
         },
-        callback_url: formData.callback_url || "https://google.com",
+        callback_url: formData.callback_url || "https://dev-vanilla.edviron.com/erp",
       }
 
       const response = await paymentAPI.create(paymentData)
@@ -180,9 +180,9 @@ const CreatePayment: React.FC = () => {
                 value={formData.callback_url}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white"
-                placeholder="https://google.com"
+                placeholder="https://dev-vanilla.edviron.com/erp"
               />
-              <p className="mt-1 text-xs text-gray-400">Default test URL: https://google.com</p>
+              <p className="mt-1 text-xs text-gray-400">Default callback URL: https://dev-vanilla.edviron.com/erp</p>
             </div>
 
             <button

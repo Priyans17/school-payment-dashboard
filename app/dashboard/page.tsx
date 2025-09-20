@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation"
 import Dashboard from "../../src/pages/Dashboard"
 import Layout from "../../src/components/Layout"
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false)
   const [user, setUser] = useState(null)

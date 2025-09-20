@@ -11,14 +11,27 @@ const SimpleLogin: React.FC = () => {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  
+  // Safely get the login function from context
+  let login: ((email: string, password: string) => Promise<void>) | null = null
+  try {
+    const authContext = useAuth()
+    login = authContext.login
+  } catch (error) {
+    // Context not available during static generation
+    console.log("Auth context not available during static generation")
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      await login(email, password)
+      if (login) {
+        await login(email, password)
+      } else {
+        console.error("Login function not available")
+      }
     } catch (error) {
       // Error is handled in AuthContext
     } finally {

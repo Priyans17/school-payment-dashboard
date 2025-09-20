@@ -18,7 +18,7 @@ interface TransactionDetails {
   payment_time: string
   payment_message: string
   gateway: string
-  student_info: {
+  student_info?: {
     name: string
     id: string
     email: string
@@ -162,13 +162,13 @@ const TransactionStatus: React.FC = () => {
               {/* Status Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                  {getStatusIcon(transaction.status)}
+                  {getStatusIcon(transaction.status || "pending")}
                   <div>
                     <h2 className="text-xl font-semibold text-white">Transaction Details</h2>
                     <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(transaction.status)}`}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(transaction.status || "pending")}`}
                     >
-                      {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                      {(transaction.status || "pending").charAt(0).toUpperCase() + (transaction.status || "pending").slice(1)}
                     </span>
                   </div>
                 </div>
@@ -181,10 +181,10 @@ const TransactionStatus: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-400">Order ID</label>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-sm font-mono bg-gray-700 px-2 py-1 rounded text-white">
-                        {transaction.custom_order_id}
+                        {transaction.custom_order_id || "N/A"}
                       </span>
                       <button
-                        onClick={() => copyToClipboard(transaction.custom_order_id)}
+                        onClick={() => copyToClipboard(transaction.custom_order_id || "")}
                         className="text-gray-400 hover:text-gray-300"
                       >
                         <Copy className="h-4 w-4" />
@@ -194,12 +194,12 @@ const TransactionStatus: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-400">Order Amount</label>
-                    <p className="mt-1 text-lg font-semibold text-white">₹{transaction.order_amount}</p>
+                    <p className="mt-1 text-lg font-semibold text-white">₹{transaction.order_amount || 0}</p>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-400">Transaction Amount</label>
-                    <p className="mt-1 text-lg font-semibold text-white">₹{transaction.transaction_amount}</p>
+                    <p className="mt-1 text-lg font-semibold text-white">₹{transaction.transaction_amount || 0}</p>
                   </div>
 
                   <div>
@@ -211,7 +211,7 @@ const TransactionStatus: React.FC = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-400">Gateway</label>
-                    <p className="mt-1 text-sm text-white">{transaction.gateway}</p>
+                    <p className="mt-1 text-sm text-white">{transaction.gateway || "N/A"}</p>
                   </div>
 
                   <div>
@@ -236,15 +236,15 @@ const TransactionStatus: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-400">Name</label>
-                    <p className="mt-1 text-sm text-white">{transaction.student_info.name}</p>
+                    <p className="mt-1 text-sm text-white">{transaction.student_info?.name || "N/A"}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-400">Student ID</label>
-                    <p className="mt-1 text-sm text-white">{transaction.student_info.id}</p>
+                    <p className="mt-1 text-sm text-white">{transaction.student_info?.id || "N/A"}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-400">Email</label>
-                    <p className="mt-1 text-sm text-white">{transaction.student_info.email}</p>
+                    <p className="mt-1 text-sm text-white">{transaction.student_info?.email || "N/A"}</p>
                   </div>
                 </div>
               </div>

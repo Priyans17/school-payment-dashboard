@@ -7,6 +7,9 @@ import SimpleLogin from "./components/SimpleLogin"
 import Layout from "../src/components/Layout"
 import { useAuth } from "./contexts/AuthContext"
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export default function Page() {
   const [mounted, setMounted] = useState(false)
   const { user, loading } = useAuth()

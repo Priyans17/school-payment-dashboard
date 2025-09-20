@@ -14,7 +14,16 @@ const SimpleRegister: React.FC = () => {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { register } = useAuth()
+  
+  // Safely get the register function from context
+  let register: ((email: string, password: string, name: string) => Promise<void>) | null = null
+  try {
+    const authContext = useAuth()
+    register = authContext.register
+  } catch (error) {
+    // Context not available during static generation
+    console.log("Auth context not available during static generation")
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -28,7 +37,11 @@ const SimpleRegister: React.FC = () => {
     setLoading(true)
 
     try {
-      await register(formData.email, formData.password, formData.name)
+      if (register) {
+        await register(formData.email, formData.password, formData.name)
+      } else {
+        console.error("Register function not available")
+      }
     } catch (error) {
       // Error is handled in AuthContext
     } finally {

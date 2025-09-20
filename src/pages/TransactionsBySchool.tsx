@@ -15,7 +15,7 @@ interface Transaction {
   transaction_amount: number
   payment_mode: string
   payment_time: string
-  student_info: {
+  student_info?: {
     name: string
     id: string
     email: string
@@ -280,9 +280,9 @@ const TransactionsBySchool: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono">{transaction.custom_order_id}</span>
+                          <span className="font-mono">{transaction.custom_order_id || "N/A"}</span>
                           <button
-                            onClick={() => copyToClipboard(transaction.custom_order_id)}
+                            onClick={() => copyToClipboard(transaction.custom_order_id || "")}
                             className="text-gray-400 hover:text-gray-300 transition-colors"
                             title="Copy Edviron Order ID"
                           >
@@ -291,27 +291,27 @@ const TransactionsBySchool: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                        ₹{transaction.order_amount.toLocaleString()}
+                        ₹{(transaction.order_amount || 0).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                        ₹{transaction.transaction_amount.toLocaleString()}
+                        ₹{(transaction.transaction_amount || 0).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                         {transaction.payment_mode || "NA"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(transaction.status)}`}>
-                          {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(transaction.status || "pending")}`}>
+                          {(transaction.status || "pending").charAt(0).toUpperCase() + (transaction.status || "pending").slice(1)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                        {transaction.student_info.name}
+                        {transaction.student_info?.name || "N/A"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                        {transaction.student_info.id}
+                        {transaction.student_info?.id || "N/A"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                        {transaction.student_info.email || "0000000000"}
+                        {transaction.student_info?.email || "N/A"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                         {transaction.gateway || "NA"}

@@ -626,13 +626,13 @@ const Dashboard: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           <div className="flex items-center">
                             <IndianRupee className="h-4 w-4 text-gray-400 mr-1" />
-                            {transaction.orderAmount.toLocaleString()}
+                            {(transaction.orderAmount || 0).toLocaleString()}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           <div className="flex items-center">
                             <IndianRupee className="h-4 w-4 text-gray-400 mr-1" />
-                            {transaction.transactionAmount.toLocaleString()}
+                            {(transaction.transactionAmount || 0).toLocaleString()}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
@@ -667,7 +667,7 @@ const Dashboard: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           <div className="flex items-center">
                             <IndianRupee className="h-4 w-4 text-gray-400 mr-1" />
-                            {transaction.vendorAmount.toLocaleString()}
+                            {(transaction.vendorAmount || 0).toLocaleString()}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">

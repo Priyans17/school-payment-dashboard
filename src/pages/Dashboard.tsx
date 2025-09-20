@@ -397,18 +397,7 @@ const Dashboard: React.FC = () => {
               {user && <p className="text-sm text-gray-600 dark:text-gray-400">Welcome back, {user.name}</p>}
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" onClick={navigateToCreatePayment}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Payment
-              </Button>
-              <Button variant="outline" onClick={navigateToTransactionStatus}>
-                <Search className="h-4 w-4 mr-2" />
-                Check Status
-              </Button>
-              <Button variant="outline" onClick={navigateToSchoolTransactions}>
-                <Building className="h-4 w-4 mr-2" />
-                School Transactions
-              </Button>
+            
               <Button variant="destructive" onClick={handleLogout}>
                 Logout
               </Button>

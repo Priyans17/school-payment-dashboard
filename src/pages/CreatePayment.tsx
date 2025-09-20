@@ -10,12 +10,18 @@ import Link from "next/link"
 interface PaymentFormData {
   amount: string
   callback_url: string
+  student_name: string
+  student_id: string
+  student_email: string
 }
 
 const CreatePayment: React.FC = () => {
   const [formData, setFormData] = useState<PaymentFormData>({
     amount: "",
     callback_url: "https://google.com",
+    student_name: "",
+    student_id: "",
+    student_email: "",
   })
   const [loading, setLoading] = useState(false)
   const [paymentResponse, setPaymentResponse] = useState<any>(null)
@@ -35,9 +41,9 @@ const CreatePayment: React.FC = () => {
       const paymentData = {
         amount: Number.parseFloat(formData.amount),
         student_info: {
-          name: "Demo Student",
-          id: "STU001",
-          email: "demo@example.com",
+          name: formData.student_name,
+          id: formData.student_id,
+          email: formData.student_email,
         },
         callback_url: formData.callback_url || "https://google.com",
       }
@@ -101,6 +107,48 @@ const CreatePayment: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-gray-300 cursor-not-allowed"
               />
               <p className="mt-1 text-xs text-gray-400">Pre-filled from environment variable</p>
+            </div>
+
+            <div>
+              <label htmlFor="student_name" className="block text-sm font-medium text-gray-300 mb-2">
+                Student Name *
+              </label>
+              <input
+                id="student_name"
+                name="student_name"
+                type="text"
+                required
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white"
+                placeholder="Enter student name"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="student_id" className="block text-sm font-medium text-gray-300 mb-2">
+                Student ID *
+              </label>
+              <input
+                id="student_id"
+                name="student_id"
+                type="text"
+                required
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white"
+                placeholder="Enter student ID"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="student_email" className="block text-sm font-medium text-gray-300 mb-2">
+                Student Email *
+              </label>
+              <input
+                id="student_email"
+                name="student_email"
+                type="email"
+                required
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white"
+                placeholder="Enter student email"
+              />
             </div>
 
             <div>

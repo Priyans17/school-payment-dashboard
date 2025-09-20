@@ -4,7 +4,7 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import { authAPI } from "../../src/services/api"
-import { toast } from "@/hooks/use-toast"
+import toast from "react-hot-toast"
 
 interface User {
   id: string
@@ -67,20 +67,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(userData))
       setUser(userData)
 
-      toast({
-        title: "Success",
-        description: "Login successful!",
-      })
+      toast.success("Login successful!")
       // Use router.push instead of window.location.href
       router.push("/dashboard")
     } catch (error: any) {
       console.error("Login error:", error)
       const message = error.response?.data?.message || "Login failed. Please check your credentials."
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      })
+      toast.error(message)
       throw error
     }
   }
@@ -94,20 +87,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(userData))
       setUser(userData)
 
-      toast({
-        title: "Success",
-        description: "Registration successful!",
-      })
+      toast.success("Registration successful!")
       // Use router.push instead of window.location.href
       router.push("/dashboard")
     } catch (error: any) {
       console.error("Registration error:", error)
       const message = error.response?.data?.message || "Registration failed. Please try again."
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      })
+      toast.error(message)
       throw error
     }
   }
@@ -116,10 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
     setUser(null)
-    toast({
-      title: "Success",
-      description: "Logged out successfully!",
-    })
+    toast.success("Logged out successfully!")
     // Use router.push instead of window.location.href
     router.push("/login")
   }

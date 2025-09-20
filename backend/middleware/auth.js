@@ -17,12 +17,12 @@ const authenticateToken = async (req, res, next) => {
     
     // Handle both MongoDB and memory storage
     let user
-    if (User.findById) {
-      // MongoDB
+    try {
+      // Try MongoDB first with select method
       user = await User.findById(decoded.userId).select("-password")
-    } else {
-      // Memory storage
-      user = await User.findOne({ _id: decoded.userId })
+    } catch (error) {
+      // If that fails, try without select (memory storage or MongoDB without select)
+      user = await User.findById(decoded.userId)
       if (user) {
         delete user.password
       }

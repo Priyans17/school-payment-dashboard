@@ -1,250 +1,260 @@
-<<<<<<< HEAD
-
-=======
 # School Payment Dashboard
 
-A comprehensive school payment management system built with Next.js and Node.js. This application provides a complete solution for managing school payments, transactions, and student fee collection.
+A complete school payment management system with backend microservice and React-based dashboard, built for Edviron.
 
 ## 🚀 Features
 
-### Authentication
-- **Login & Signup**: Secure user authentication with JWT tokens
-- **Form Validation**: Client-side validation with error handling
-- **Success/Error States**: Clear feedback for user actions
-- **Responsive Design**: Works on desktop, tablet, and mobile
+### Backend (Node.js + MongoDB)
+- **REST APIs** for handling orders, transactions, and payments
+- **JWT Authentication** for secure access
+- **Payment Gateway Integration** with `/create-payment` endpoint
+- **Webhook Listener** at `/webhook` for updating payment statuses
+- **Transaction Management** with pagination, sorting, and filtering
+- **Database Support** with MongoDB (with in-memory fallback)
+- **Comprehensive Error Handling** and validation
 
-### Dashboard (Transaction History)
-- **Search Functionality**: Search by Order ID
-- **Advanced Filters**: Filter by Date, Status, and Payment Method
-- **Export Capability**: Download data as CSV or Excel
-- **Transaction Table**: Complete transaction details with all required columns:
-  - Sr. No, Institute Name, Date & Time
-  - Order ID, Edviron Order ID (with copy functionality)
-  - Order Amount, Transaction Amount, Payment Method
-  - Status (Success=Green, Pending=Yellow, Failed=Red)
-  - Student Name, Student ID, Phone Number
-  - Vendor Amount, Gateway, Capture Status
-- **Sorting**: Sort by Date, Status, and Transaction Amount
-- **Pagination**: Configurable rows per page (10, 25, 50)
-- **Responsive Design**: Mobile-friendly card layout
+### Frontend (React + Next.js + Tailwind CSS)
+- **Modern Dashboard** with real-time transaction data
+- **Payment Creation** form with student information
+- **Transaction Status Check** by order ID
+- **School-specific Transactions** view
+- **Advanced Filtering** and search capabilities
+- **Responsive Design** with dark mode support
+- **Export Functionality** for transaction data
 
-### Create Payment Page
-- **School ID**: Pre-filled from environment variables
-- **Amount Input**: Numeric input in INR
-- **Callback URL**: Configurable with default test URL
-- **Backend Integration**: Calls `/erp/create-collect-request` API
-- **JWT Signing**: Automatic JWT generation using PG key
-- **Response Display**: Shows Collect Request URL
-- **Copy Functionality**: Copy payment links with one click
-- **Success/Error Handling**: Clear feedback messages
+## 📋 User Flow
 
-### Check Transaction Status Page
-- **Collect Request ID**: Input for transaction lookup
-- **School ID**: Pre-filled from environment variables
-- **Status Check**: Calls `/erp/collect-request/{id}` API
-- **JWT Signing**: Automatic JWT generation
-- **Status Display**: Clear status indicators with colors
-- **Transaction Details**: Complete transaction information
-- **Error Handling**: Proper error states and messages
+1. **Login & Authentication** - Users log in with JWT authentication
+2. **Create Payment** - School admins create payment requests for students
+3. **Payment Processing** - Webhook integration updates payment statuses
+4. **View Transactions** - Dashboard shows all transactions with filtering
+5. **School Transactions** - View transactions by specific school
+6. **Status Check** - Verify payment status using order ID
 
-## 🛠️ Technology Stack
-
-### Frontend
-- **Next.js 14**: React framework with App Router
-- **TypeScript**: Type-safe development
-- **Tailwind CSS**: Utility-first CSS framework
-- **Lucide React**: Beautiful icons
-- **React Hook Form**: Form handling
-- **Axios**: HTTP client
-- **React Hot Toast**: Notifications
+## 🛠️ Tech Stack
 
 ### Backend
-- **Node.js**: JavaScript runtime
-- **Express.js**: Web framework
-- **MongoDB**: Database (with in-memory fallback)
-- **JWT**: Authentication tokens
-- **bcryptjs**: Password hashing
-- **CORS**: Cross-origin resource sharing
+- Node.js + Express.js
+- MongoDB with Mongoose
+- JWT for authentication
+- bcryptjs for password hashing
+- CORS enabled for cross-origin requests
 
-## 📦 Installation
+### Frontend
+- Next.js 14 with App Router
+- React 18 with TypeScript
+- Tailwind CSS for styling
+- Lucide React for icons
+- Axios for API calls
+- React Hot Toast for notifications
+
+## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js (v16 or higher)
+- MongoDB (optional - falls back to in-memory storage)
 - npm or yarn
-- MongoDB (optional - uses in-memory storage if not available)
 
-### Quick Start
-```bash
-# Clone the repository
-git clone <repository-url>
-cd school-payment-backend
+### Installation
 
-# Install all dependencies
-npm run install:all
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd school-payment-backend
+   ```
 
-# Start development servers
-npm run start:all
+2. **Install dependencies**
+   ```bash
+   npm run install:all
+   ```
+
+3. **Start the development servers**
+   ```bash
+   npm run start:all
+   ```
+
+   Or start them individually:
+   ```bash
+   # Backend (port 3002)
+   npm run backend:dev
+   
+   # Frontend (port 3000)
+   npm run dev
+   ```
+
+4. **Access the application**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:3002/api
+
+## 📁 Project Structure
+
+```
+school-payment-backend/
+├── app/                          # Next.js app directory
+│   ├── components/               # Reusable components
+│   ├── contexts/                 # React contexts
+│   ├── create-payment/           # Payment creation page
+│   ├── dashboard/                # Main dashboard page
+│   ├── login/                    # Login page
+│   ├── register/                 # Registration page
+│   ├── transaction-status/       # Status check page
+│   └── transactions/school/      # School transactions page
+├── backend/                      # Express.js backend
+│   ├── models/                   # Database models
+│   ├── routes/                   # API routes
+│   ├── middleware/               # Custom middleware
+│   └── server.js                 # Main server file
+├── src/                          # Source code
+│   ├── components/               # React components
+│   ├── pages/                    # Page components
+│   ├── services/                 # API services
+│   └── schemas/                  # TypeScript schemas
+└── components/                   # Shared UI components
 ```
 
-### Manual Installation
-```bash
-# Install frontend dependencies
-npm install
-
-# Install backend dependencies
-cd backend
-npm install
-cd ..
-
-# Start backend server
-npm run backend:dev
-
-# Start frontend server (in another terminal)
-npm run dev
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env.local` file in the root directory:
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:3002/api
-NEXT_PUBLIC_SCHOOL_ID=65b0e6293e9f76a9694d84b4
-```
-
-Create a `.env` file in the backend directory:
-```bash
-SCHOOL_ID=65b0e6293e9f76a9694d84b4
-PG_KEY=your_pg_key_here
-PAYMENT_API_URL=https://api.edviron.com
-PAYMENT_API_KEY=your_payment_api_key_here
-MONGODB_URI=mongodb://localhost:27017/school-payments
-JWT_SECRET=your_jwt_secret_here
-PORT=3002
-```
-
-## 🚀 Usage
-
-### 1. Access the Application
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3002/api
-
-### 2. Create Account
-- Navigate to `/register`
-- Fill in your details
-- Account will be created and you'll be logged in
-
-### 3. Login
-- Navigate to `/login`
-- Use your credentials to log in
-
-### 4. Dashboard
-- View transaction history
-- Use search and filters
-- Export data as needed
-
-### 5. Create Payment
-- Navigate to `/create-payment`
-- Enter amount and callback URL
-- Submit to create payment request
-
-### 6. Check Status
-- Navigate to `/transaction-status`
-- Enter collect request ID
-- View transaction details
-
-## 📱 Responsive Design
-
-The application is fully responsive and works on:
-- **Desktop**: Full-featured interface
-- **Tablet**: Optimized layout
-- **Mobile**: Card-based layout for better usability
-
-## 🎨 Design Features
-
-- **Card-based Layout**: Clean, modern design
-- **Dark Mode Support**: Toggle between light and dark themes
-- **Consistent Typography**: Professional font hierarchy
-- **Color-coded Status**: Visual status indicators
-- **Hover Effects**: Interactive elements
-- **Loading States**: Skeleton loaders and spinners
-- **Error Handling**: User-friendly error messages
-
-## 🔒 Security
-
-- **JWT Authentication**: Secure token-based auth
-- **Password Hashing**: bcryptjs for password security
-- **CORS Protection**: Configured for specific origins
-- **Input Validation**: Client and server-side validation
-- **Environment Variables**: Sensitive data protection
-
-## 📊 API Endpoints
+## 🔧 API Endpoints
 
 ### Authentication
-- `POST /api/auth/login` - User login
 - `POST /api/auth/register` - User registration
-
-### Transactions
-- `GET /api/transactions` - Get all transactions
-- `GET /api/transactions/school/:schoolId` - Get transactions by school
-- `GET /api/transaction-status/:customOrderId` - Check transaction status
+- `POST /api/auth/login` - User login
+- `GET /api/auth/me` - Get current user
 
 ### Payments
 - `POST /api/payment/create-payment` - Create payment request
-- `GET /api/payment/status/:collectRequestId` - Check payment status
+- `GET /api/payment/status/:id` - Check payment status
+- `POST /api/payment/auto-approve/:id` - Auto-approve payment
+- `POST /api/payment/admin-approve/:id` - Admin approve/reject payment
 
-### Orders
-- `POST /api/order/create-dummy-data` - Create dummy data
-- `GET /api/order/export` - Export data
+### Transactions
+- `GET /api/transactions` - Get all transactions (paginated)
+- `GET /api/transactions/school/:schoolId` - Get transactions by school
+- `GET /api/transaction-status/:orderId` - Check transaction status
+
+### Webhooks
+- `POST /api/webhook` - Webhook endpoint for payment updates
+
+## 🗄️ Database Schema
+
+### User
+```javascript
+{
+  email: String (unique),
+  password: String (hashed),
+  name: String,
+  role: String (admin/user)
+}
+```
+
+### Order
+```javascript
+{
+  school_id: String,
+  trustee_id: String,
+  student_info: {
+    name: String,
+    id: String,
+    email: String
+  },
+  gateway_name: String,
+  custom_order_id: String (unique),
+  order_amount: Number,
+  status: String,
+  created_by: String
+}
+```
+
+### OrderStatus
+```javascript
+{
+  collect_id: ObjectId (ref: Order),
+  order_amount: Number,
+  transaction_amount: Number,
+  payment_mode: String,
+  status: String,
+  payment_time: Date
+}
+```
+
+## 🔐 Environment Variables
+
+Create a `.env` file in the backend directory:
+
+```env
+# JWT Secret
+JWT_SECRET=your-secret-key
+
+# MongoDB URI (optional)
+MONGODB_URI=mongodb://localhost:27017/school-payments
+
+# School ID
+SCHOOL_ID=65b0e6293e9f76a9694d84b4
+
+# API URL (for frontend)
+NEXT_PUBLIC_API_URL=http://localhost:3002/api
+```
+
+## 🎨 UI Features
+
+- **Dark Mode** - Automatic dark theme
+- **Responsive Design** - Works on all devices
+- **Real-time Updates** - Live transaction data
+- **Advanced Filtering** - Filter by status, date, payment method
+- **Export Data** - CSV export functionality
+- **Search** - Search by order ID, student name, or email
+- **Pagination** - Efficient data loading
+- **Sorting** - Sort by any column
+
+## 🧪 Testing the Application
+
+1. **Register a new user** at `/register`
+2. **Login** with your credentials
+3. **Create a payment** using the "Create Payment" button
+4. **View transactions** on the dashboard
+5. **Check transaction status** using the order ID
+6. **View school-specific transactions** by selecting a school
 
 ## 🚀 Deployment
 
-### Frontend (Vercel)
-1. Push code to GitHub
-2. Connect to Vercel
-3. Set environment variables
-4. Deploy
+### Backend Deployment
+1. Set up MongoDB Atlas or local MongoDB
+2. Configure environment variables
+3. Deploy to Heroku, AWS, or your preferred platform
 
-### Backend (Render/Heroku)
-1. Create web service
-2. Connect GitHub repository
-3. Set build/start commands
-4. Configure environment variables
-5. Deploy
+### Frontend Deployment
+1. Build the application: `npm run build`
+2. Deploy to Vercel, Netlify, or your preferred platform
+3. Update API URLs in environment variables
 
-See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for detailed deployment instructions.
+## 📝 API Documentation
 
-## 🧪 Testing
+### Create Payment Request
+```javascript
+POST /api/payment/create-payment
+{
+  "amount": 1000,
+  "student_info": {
+    "name": "John Doe",
+    "id": "STU001",
+    "email": "john@example.com"
+  },
+  "callback_url": "https://example.com/callback"
+}
+```
 
-### Manual Testing
-1. Create account and login
-2. Navigate through all pages
-3. Test search and filters
-4. Create payment requests
-5. Check transaction status
-6. Test export functionality
-7. Verify responsive design
-
-### Test Data
-- Use "Create Dummy Data" button on dashboard
-- Or create raw data through the form
-
-## 🐛 Troubleshooting
-
-### Common Issues
-1. **CORS errors**: Check backend CORS configuration
-2. **API connection**: Verify backend is running on port 3002
-3. **Environment variables**: Ensure all required variables are set
-4. **Database**: Check MongoDB connection or use in-memory storage
-
-### Logs
-- Frontend: Browser console
-- Backend: Terminal output
-
-## 📝 License
-
-This project is licensed under the MIT License.
+### Webhook Payload
+```javascript
+POST /api/webhook
+{
+  "order_info": {
+    "order_id": "EDV123456789",
+    "order_amount": 1000,
+    "transaction_amount": 1000,
+    "payment_mode": "UPI",
+    "status": "success",
+    "payment_time": "2024-01-01T12:00:00Z"
+  }
+}
+```
 
 ## 🤝 Contributing
 
@@ -254,15 +264,14 @@ This project is licensed under the MIT License.
 4. Test thoroughly
 5. Submit a pull request
 
-## 📞 Support
+## 📄 License
 
-For issues or questions:
-1. Check the troubleshooting section
-2. Review the logs
-3. Ensure environment variables are set correctly
-4. Create an issue in the repository
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For support or questions, please contact the development team or create an issue in the repository.
 
 ---
 
-**Built with ❤️ for school payment management**
->>>>>>> 70fad72 (Final)
+**Built with ❤️ for Edviron School Payment Management**
